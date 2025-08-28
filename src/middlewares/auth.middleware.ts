@@ -10,7 +10,6 @@ export async function authMiddleware(
   try {
     const token = req.headers.authorization?.split(" ")[1];
     if (!token) throw new Error("No token provided");
-
     const decoded = jwt.verify(token, JWT_SECRET!);
     if (!decoded) throw new Error("Invalid token");
     req.user = decoded as { userId: string; email: string };

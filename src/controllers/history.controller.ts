@@ -130,9 +130,40 @@ export async function getUserHistory(req: Request, res: Response) {
       items: history,
       nextCursor,
     });
-    
   } catch (error) {
     console.error("GET HISTORY API ERROR", error);
+    res.status(500).json({
+      status: false,
+      message: "Internal server error",
+      data: {},
+    });
+  }
+}
+
+export async function deleteHistory(req: Request, res: Response) {
+  try {
+    const user = req.user;
+    if (!user) {
+      return res.status(401).json({
+        status: false,
+        message: "Unauthorized access",
+        data: {},
+      });
+    }
+
+    await db.history.deleteMany({
+      where: {
+        userId: user.userId,
+      },
+    });
+
+    return res.status(200).json({
+      status: true,
+      message: "History cleared successfully",
+      data: {},
+    });
+  } catch (error) {
+    console.error("DELETE HISTORY API ERROR", error);
     res.status(500).json({
       status: false,
       message: "Internal server error",
