@@ -10,6 +10,7 @@ import {
   removeUserLikedSong,
   setUserLikedSong,
 } from "../controllers/liked.controller.js";
+import { cache } from "../middlewares/cache.middleware.js";
 
 export const songRouter = Router();
 
@@ -18,5 +19,5 @@ songRouter.get("/liked", getUserLikedSongs);
 songRouter.post("/liked", setUserLikedSong);
 songRouter.get("/liked/tracks", getUserLikedTracks);
 songRouter.delete("/liked/:id", removeUserLikedSong);
-songRouter.get("/:id/lyrics", getLyrics);
+songRouter.get("/:id/lyrics", cache, getLyrics);
 songRouter.get("/:id/view", setView);

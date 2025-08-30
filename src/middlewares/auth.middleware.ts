@@ -15,7 +15,7 @@ export async function authMiddleware(
     req.user = decoded as { userId: string; email: string };
     next();
   } catch (error) {
-    console.error("AUTH MIDDLEWARE ERROR:", error);
+    // console.error("AUTH MIDDLEWARE ERROR:", error);
     res.status(401).json({
       status: false,
       message: "Unauthorized access",
