@@ -4,7 +4,11 @@ import {
   getUserHistory,
   setUserHistory,
 } from "../controllers/history.controller.js";
-import { getAccountDetails, getUserOrderHistory, updateAccountSettings } from "../controllers/account.controller.js";
+import {
+  getAccountDetails,
+  getUserOrderHistory,
+  updateAccountSettings,
+} from "../controllers/account.controller.js";
 
 export const userRouter = Router();
 

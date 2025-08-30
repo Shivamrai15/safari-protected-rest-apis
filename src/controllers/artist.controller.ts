@@ -131,3 +131,144 @@ export async function unsubscribe(req: Request, res: Response) {
     });
   }
 }
+
+export async function getSubscribedArtists(req: Request, res: Response) {
+  try {
+    const user = req.user;
+    if (!user) {
+      return res.status(401).json({
+        status: false,
+        message: "Unauthorized access",
+        data: {},
+      });
+    }
+
+    const artists = await db.artist.findMany({
+      where: {
+        followerIds: {
+          has: user.userId,
+        },
+      },
+      select: {
+        id: true,
+        name: true,
+        image: true,
+      },
+    });
+
+    return res.json({
+      status: true,
+      message: "Success",
+      data: artists,
+    });
+  } catch (error) {
+    console.error("GET USER FOLLOWING ERROR:", error);
+    res.status(500).json({
+      status: false,
+      message: "Internal server error",
+      data: {},
+    });
+  }
+}
+
+export async function getFavoriteArtists(req: Request, res: Response) {
+  try {
+    const user = req.user;
+    if (!user) {
+      return res.status(401).json({
+        status: false,
+        message: "Unauthorized access",
+        data: {},
+      });
+    }
+
+    const favoriteArtists = await db.$runCommandRaw({
+      aggregate: "Artist",
+      pipeline: [
+        {
+          $lookup: {
+            from: "Song",
+            localField: "_id",
+            foreignField: "artistIds",
+            as: "songs",
+          },
+        },
+        {
+          $lookup: {
+            from: "View",
+            let: { songIds: "$songs._id" },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $and: [
+                      { $in: ["$songId", "$$songIds"] },
+                      { $eq: ["$userId", { $oid: user.userId }] },
+                    ],
+                  },
+                },
+              },
+            ],
+            as: "userViews",
+          },
+        },
+        {
+          $addFields: {
+            viewCount: { $size: "$userViews" },
+          },
+        },
+        {
+          $match: {
+            viewCount: { $gt: 0 },
+          },
+        },
+        {
+          $sort: { viewCount: -1 },
+        },
+        {
+          $limit: 15,
+        },
+        {
+          $project: {
+            _id: 1,
+            name: 1,
+            image: 1,
+          },
+        },
+      ],
+      cursor: {},
+    });
+
+    const cursor = favoriteArtists?.cursor as
+      | {
+          firstBatch: {
+            _id: {
+              $oid: string;
+            };
+            name: string;
+            image: string;
+          }[];
+        }
+      | undefined;
+
+    const results =
+      cursor?.firstBatch.map((data) => ({
+        id: data._id.$oid,
+        name: data.name,
+        image: data.image,
+      })) || [];
+
+    return res.json({
+      status: true,
+      message: "Success",
+      data: results,
+    });
+  } catch (error) {
+    console.error("GET USER FAVORITE ARTISTS ERROR:", error);
+    res.status(500).json({
+      status: false,
+      message: "Internal server error",
+      data: {},
+    });
+  }
+}
