@@ -50,7 +50,11 @@ export async function getAccountDetails(req: Request, res: Response) {
       message: "Account details retrieved successfully",
       data: {
         ...details,
-        isSubscribed: !!isActive,
+        subscription : {
+          isActive: !!isActive,
+          currentPeriodEnd: subscription?.stripeCurrentPeriodEnd || null,
+          priceId: subscription?.stripePriceId || null,
+        }
       },
     });
   } catch (error) {
