@@ -30,7 +30,7 @@ export async function createPlaylist(req: Request, res: Response) {
       });
     }
 
-    await db.playList.create({
+    const playlist =await db.playList.create({
       data: {
         userId: user.userId,
         name: validatedData.data.name,
@@ -42,7 +42,7 @@ export async function createPlaylist(req: Request, res: Response) {
     return res.status(201).json({
       status: true,
       message: "Playlist created successfully",
-      data: {},
+      data: playlist,
     });
   } catch (error) {
     console.error("CREATE PLAYLIST API ERROR", error);
