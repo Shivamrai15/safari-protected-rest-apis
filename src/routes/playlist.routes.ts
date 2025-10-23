@@ -17,7 +17,7 @@ export const playlistRouter = Router();
 
 playlistRouter.post("/", createPlaylist);
 playlistRouter.get("/", getUserPlaylists);
-playlistRouter.post("/", addPlaylistSongsBulk);
+playlistRouter.post("/songs", addPlaylistSongsBulk);
 playlistRouter.get("/:id/songs", getPlaylistSongs);
 playlistRouter.get("/:id/existing-songs", getPlaylistExistingSongs);
 playlistRouter.patch("/:id/restore", restorePlaylist);
