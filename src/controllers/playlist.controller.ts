@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import { differenceInDays } from "date-fns";
-import { PlaylistSchema } from "../schemas/playlist.schema.js";
+import { AddBulkSongsSchema, PlaylistSchema } from "../schemas/playlist.schema.js";
 import { db } from "../lib/db.js";
 import type {
   Album,
@@ -755,6 +755,65 @@ export async function getPlaylistExistingSongs(req: Request, res: Response) {
     
   } catch (error) {
     console.error("PLAYLIST EXISTING SONGS API ERROR", error);
+    return res.status(500).json({
+      status: false,
+      message: "Internal Server Error",
+      data: {},
+    });
+  }
+}
+
+export async function addPlaylistSongsBulk(req: Request, res: Response) {
+  try {
+
+    const user = req.user;
+    if (!user) {
+      return res.status(401).json({
+        status: false,
+        message: "Unauthorized access",
+        data: {},
+      });
+    }
+
+    const validatedData = await AddBulkSongsSchema.safeParseAsync(req.body);
+    if (!validatedData.success) {
+      return res.status(400).json({
+        status: false,
+        message: "Invalid request data",
+        data: validatedData.error,
+      });
+    }
+
+    const playlist = await db.playList.findUnique({
+      where: {
+        id: validatedData.data.playlistId,
+        userId: user.userId,
+        isArchived: false,
+      },
+    });
+    if (!playlist) {
+      return res.status(404).json({
+        status: false,
+        message: "Playlist not found",
+        data: {},
+      });
+    }
+    
+    await db.playlistSong.createMany({
+      data : validatedData.data.songIds.map((songId) => ({
+        playlistId: playlist.id,
+        songId,
+      })),
+    });
+
+    return res.status(201).json({
+      status: true,
+      message: "Songs added to playlist successfully",
+      data: {},
+    });
+    
+  } catch (error) {
+    console.error("ADD PLAYLIST SONGS BULK API ERROR", error);
     return res.status(500).json({
       status: false,
       message: "Internal Server Error",

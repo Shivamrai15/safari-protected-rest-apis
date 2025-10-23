@@ -9,13 +9,15 @@ import {
   removePlaylistSong,
   restorePlaylist,
   updateUserPlaylist,
-  getPlaylistExistingSongs
+  addPlaylistSongsBulk,
+  getPlaylistExistingSongs,
 } from "../controllers/playlist.controller.js";
 
 export const playlistRouter = Router();
 
 playlistRouter.post("/", createPlaylist);
 playlistRouter.get("/", getUserPlaylists);
+playlistRouter.post("/", addPlaylistSongsBulk);
 playlistRouter.get("/:id/songs", getPlaylistSongs);
 playlistRouter.get("/:id/existing-songs", getPlaylistExistingSongs);
 playlistRouter.patch("/:id/restore", restorePlaylist);
