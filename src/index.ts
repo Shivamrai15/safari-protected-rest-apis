@@ -13,7 +13,7 @@ const PORT = process.env.PORT || 3001;
 app.get("/api/v2/health", (req, res) => {
   return res.json({
     status: "healthy",
-    service: "Catalog & Metadata Server API",
+    service: "User Management Server API",
     version: "1.0.0"
   });
 });
