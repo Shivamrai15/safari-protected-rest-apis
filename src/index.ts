@@ -11,7 +11,11 @@ app.use(express.urlencoded({ extended: true }));
 const PORT = process.env.PORT || 3001;
 
 app.get("/api/v2/health", (req, res) => {
-  return res.json({ status: "ok" });
+  return res.json({
+    status: "healthy",
+    service: "Catalog & Metadata Server API",
+    version: "1.0.0"
+  });
 });
 
 app.use(authMiddleware)
