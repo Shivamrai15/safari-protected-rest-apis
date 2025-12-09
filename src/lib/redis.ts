@@ -5,7 +5,7 @@ export const redis = createClient({
     password: process.env.REDIS_PASSWORD || '',
     socket: {
         host: process.env.REDIS_URL || 'localhost',
-        port: 11114
+        port: 16296
     }
 });
 
