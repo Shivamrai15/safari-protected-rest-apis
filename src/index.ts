@@ -4,6 +4,7 @@ import { playlistRouter } from "./routes/playlist.routes.js";
 import { userRouter } from "./routes/user.routes.js";
 import { authMiddleware } from "./middlewares/auth.middleware.js";
 import { connectDB, disconnectDB } from "./lib/db.js";
+import { connectRedis, disconnectRedis } from "./lib/redis.js";
 
 const app = express();
 app.use(express.json());
@@ -28,6 +29,7 @@ app.use("/api/v2/user", userRouter);
 
 async function startServer() {
     await connectDB();
+    await connectRedis();
     
     const server = app.listen(PORT, () => {
         console.log(`Server is running on port ${PORT}`);
@@ -36,6 +38,7 @@ async function startServer() {
     const shutdown = async (signal: string) => {
         console.log(`\n${signal} received. Shutting down gracefully...`);
         server.close(async () => {
+            await disconnectRedis();
             await disconnectDB();
             console.log("Server closed");
             process.exit(0);
